@@ -207,6 +207,60 @@
 					</tr>
 				</tbody>
 			</table>
+			<div class="row" style="background:#444">
+				<div class="col-xs-offset-1 col-xs-10">
+					<center><h4><font color="white">Newsletter Archive</font></h4></center>
+					<br>
+					<table class="table">
+						<?php
+							$sql3 = $mysqli->query("SELECT `Subject`,`DateTime` FROM `newsletter`");
+							$subjects = array();
+							while($row3=$sql3->fetch_array()){
+								$month = date(F, strtotime($row3['DateTime']));
+								$subject = $row3['Subject'];
+								if($subjects[$month]){
+									array_push($subjects[$month], $subject);
+								}
+								else{
+									$subjects[$month] = array();
+									array_push($subjects[$month], $subject);
+								}
+							}
+							foreach($subjects as $x => $value){
+								echo "<tr>";
+									echo "<td>";
+									echo "<h4><font color='white'>".$x."</font></h4>";
+									echo "<ul>";
+									foreach($value as $y){
+										echo "<li><a href='#newsletterModal' data-id='$y' data-toggle='modal'><font color='white'>".$y."</font></a></li>";
+									}
+									echo "</ul>";
+									echo "</td>";
+								echo "</tr>";
+							}
+						?>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="newsletterModal" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal">
+							<span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+						</button>
+						<h4 class="modal-title" id="myModalLabel2">Newsletter Content</h4>
+					</div>
+					<div class="modal-body">
+						<div class="col-xs-offset-1 col-xs-10" id="newsletterContent">
+						</div>
+						<div class="col-sm-offset-10 col-sm-2">
+							<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="modal fade" id="tripModal" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog modal-lg">
@@ -298,6 +352,19 @@
         <script>
         window.jQuery || document.write('<script src="assets/js/libs/jquery-ui-1.10.4.min.js">\x3C/script>')
         </script>
+		<script>
+			$('#newsletterModal').on('show.bs.modal', function(e) {
+				var newsletterId = $(e.relatedTarget).data('id');
+				$.ajax({
+					type:"POST",
+					url:"get_newsletter.php",
+					data:{subject:newsletterId},
+					success:function(data){
+						$("#newsletterContent").html(data);
+					}
+				});
+			});
+		</script>
         <!--[if lt IE 9]>
   <script type="text/javascript" src="assets/js/libs/excanvas.min.js"></script>
   <script type="text/javascript" src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
